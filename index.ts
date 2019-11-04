@@ -1,7 +1,3 @@
-import { Request, Response, NextFunction } from "express";
-import logger from "@ylz/logger";
+import authenticationMiddleware from "./src/authentication";
 
-export default function(req: Request, res: Response, next: NextFunction) {
-  logger.debug("ylz-auth-middleware");
-  next();
-}
+export default authenticationMiddleware;
