@@ -20,7 +20,7 @@ export async function verifyToken(token: string): Promise<boolean> {
   try {
     await jwt.verify(token, publicKey);
   } catch (err) {
-    console.error("Invalid token!!!", err);
+    console.error("Invalid token!!!", err["name"], err["message"]);
     return false;
   }
 
