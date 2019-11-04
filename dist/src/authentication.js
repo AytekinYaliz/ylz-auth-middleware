@@ -15,24 +15,27 @@ function default_1(req, res, next) {
         logger_1.default.debug("ylz-auth-middleware", req.headers["authorization"]);
         const authorization = req.headers["authorization"];
         if (!authorization) {
-            return res.status(401).json({ message: "Missing authorization." });
+            return res.status(401).send({ message: "Missing authorization." });
         }
-        const token = authorization.replace("Bearer ", "");
-        if (!token) {
-            return res.status(401).json({ message: "Missing token." });
+        else {
+            const token = authorization.replace("Bearer ", "");
+            if (!token) {
+                return res.status(401).send({ message: "Missing token." });
+            }
+            const isVerified = yield encryption_1.verifyToken(token);
+            if (!isVerified) {
+                return res.status(401).send({ message: "Invalid token." });
+            }
+            const decodedToken = yield encryption_1.decodeToken(token);
+            if (!decodedToken) {
+                return res.status(401).send({ message: "Invalid token." });
+            }
+            if (decodedToken.ext < Date.now()) {
+                return res.status(401).send({ message: "Token expired." });
+            }
+            res.locals.userId = decodedToken.uid;
+            return next();
         }
-        if (!encryption_1.verifyToken(token)) {
-            return res.status(401).json({ message: "Invalid token." });
-        }
-        const decodedToken = yield encryption_1.decodeToken(token);
-        if (!encryption_1.decodeToken) {
-            return res.status(401).json({ message: "Invalid token." });
-        }
-        if (decodedToken.ext < Date.now()) {
-            return res.status(401).json({ message: "Token expired." });
-        }
-        res.locals.userId = decodedToken.uid;
-        next();
     });
 }
 exports.default = default_1;

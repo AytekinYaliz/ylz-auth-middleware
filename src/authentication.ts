@@ -9,29 +9,30 @@ export default async function(req: Request, res: Response, next: NextFunction) {
   const authorization = req.headers["authorization"];
 
   if (!authorization) {
-    return res.status(401).json({ message: "Missing authorization." });
-  }
-  const token = authorization.replace("Bearer ", "");
-
-  if (!token) {
-    return res.status(401).json({ message: "Missing token." });
-  }
-
-  if (!verifyToken(token)) {
-    return res.status(401).json({ message: "Invalid token." });
-  }
-
-  const decodedToken: IPayload = await decodeToken(token);
-
-  if (!decodeToken) {
-    return res.status(401).json({ message: "Invalid token." });
-  }
-
-  if (decodedToken.ext < Date.now()) {
-    return res.status(401).json({ message: "Token expired." });
+    return res.status(401).send({ message: "Missing authorization." });
   } else {
-    res.locals.userId = decodedToken.uid;
+    const token = authorization.replace("Bearer ", "");
 
-    next();
+    if (!token) {
+      return res.status(401).send({ message: "Missing token." });
+    }
+
+    const isVerified = await verifyToken(token);
+    if (!isVerified) {
+      return res.status(401).send({ message: "Invalid token." });
+    }
+
+    const decodedToken: IPayload = await decodeToken(token);
+
+    if (!decodedToken) {
+      return res.status(401).send({ message: "Invalid token." });
+    }
+
+    if (decodedToken.ext < Date.now()) {
+      return res.status(401).send({ message: "Token expired." });
+    }
+
+    res.locals.userId = decodedToken.uid;
+    return next();
   }
 }
