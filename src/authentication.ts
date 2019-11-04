@@ -29,9 +29,9 @@ export default async function(req: Request, res: Response, next: NextFunction) {
 
   if (decodedToken.ext < Date.now()) {
     return res.status(401).json({ message: "Token expired." });
+  } else {
+    res.locals.userId = decodedToken.uid;
+
+    next();
   }
-
-  res.locals.userId = decodedToken.uid;
-
-  next();
 }
