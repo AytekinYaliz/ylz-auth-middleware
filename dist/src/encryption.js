@@ -24,7 +24,7 @@ function verifyToken(token) {
             yield jwt.verify(token, publicKey);
         }
         catch (err) {
-            console.error("Invalid token!!!", err);
+            console.error("Invalid token!!!", err["name"], err["message"]);
             return false;
         }
         return true;
